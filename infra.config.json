@@ -5,7 +5,7 @@
     "directories": ["src", "test"],
     "ciWorkflow": ".github/workflows/ci.yml",
     "packageJson": {
-      "requiredScripts": ["infra:check", "infra:doctor", "infra:init", "infra:snapshot", "test", "check"]
+      "requiredScripts": ["infra:check", "infra:doctor", "infra:fix", "infra:init", "infra:snapshot", "test", "check"]
     },
     "git": {
       "mustExist": true,

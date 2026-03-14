@@ -9,24 +9,13 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+import {
+  cloneDefaultInfraConfig,
+  DEFAULT_PACKAGE_SCRIPTS
+} from "../src/infra/defaults.mjs";
 
-export const DEFAULT_INFRA_CONFIG = {
-  requirements: {
-    nodeMajorGte: 24,
-    files: ["README.md", ".gitignore", ".editorconfig", ".gitattributes", "infra.config.json"],
-    directories: ["src", "test"],
-    ciWorkflow: ".github/workflows/ci.yml",
-    packageJson: {
-      requiredScripts: ["infra:check", "infra:doctor", "infra:init", "infra:snapshot", "test", "check"]
-    },
-    git: {
-      mustExist: true,
-      mustHaveCommit: false,
-      mustHaveRemote: false
-    }
-  }
-};
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+export const DEFAULT_INFRA_CONFIG = cloneDefaultInfraConfig();
 
 function ensureDirectory(directoryPath) {
   mkdirSync(directoryPath, { recursive: true });
@@ -73,7 +62,7 @@ function createPackageJsonContent(config, options) {
 
   for (const scriptName of requiredScripts) {
     if (!missingScripts.has(scriptName)) {
-      scripts[scriptName] = "node -e \"process.exit(0)\"";
+      scripts[scriptName] = DEFAULT_PACKAGE_SCRIPTS[scriptName] ?? "node -e \"process.exit(0)\"";
     }
   }
 

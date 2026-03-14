@@ -25,6 +25,7 @@ This repository started as an empty Git workspace, so the first layer here is in
 - `npm run infra:report -- --json` prints the same report as JSON.
 - `npm run infra:check` evaluates the current workspace against `infra.config.json` and exits non-zero on policy errors.
 - `npm run infra:doctor` turns the current policy state into concrete required and suggested next actions.
+- `npm run infra:fix` automatically repairs the safe file and `package.json` issues it can, then reports any remaining manual steps.
 - `npm run infra:init -- <target-directory>` scaffolds this infrastructure baseline into a fresh folder.
 - `npm run infra:snapshot` writes the current report to `reports/infra/` and, when possible, a diff from the previous snapshot.
 - `npm run infra:diff` compares the current workspace to the latest saved snapshot without writing new files.
@@ -33,7 +34,7 @@ This repository started as an empty Git workspace, so the first layer here is in
 ## Current policy
 
 - Required baseline files include `infra.config.json` alongside the repository hygiene files.
-- `package.json` must expose the core infrastructure scripts used by this repo, including `infra:init`.
+- `package.json` must expose the core infrastructure scripts used by this repo, including `infra:fix` and `infra:init`.
 - `package.json > engines.node` must stay aligned with the policy minimum Node version.
 
 ## Next directions
