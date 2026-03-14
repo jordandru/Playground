@@ -1,9 +1,10 @@
 import { cliTests } from "./cli.test.mjs";
+import { doctorTests } from "./doctor.test.mjs";
 import { historyTests } from "./history.test.mjs";
 import { policyTests } from "./policy.test.mjs";
 import { reportTests } from "./report.test.mjs";
 
-const tests = [...reportTests, ...policyTests, ...historyTests, ...cliTests];
+const tests = [...reportTests, ...policyTests, ...historyTests, ...doctorTests, ...cliTests];
 let passed = 0;
 
 for (const testCase of tests) {

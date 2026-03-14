@@ -24,6 +24,7 @@ This repository started as an empty Git workspace, so the first layer here is in
 - `npm run infra:report` prints a Markdown infrastructure report for the current workspace, including policy findings.
 - `npm run infra:report -- --json` prints the same report as JSON.
 - `npm run infra:check` evaluates the current workspace against `infra.config.json` and exits non-zero on policy errors.
+- `npm run infra:doctor` turns the current policy state into concrete required and suggested next actions.
 - `npm run infra:snapshot` writes the current report to `reports/infra/` and, when possible, a diff from the previous snapshot.
 - `npm run infra:diff` compares the current workspace to the latest saved snapshot without writing new files.
 - `npm run check` runs the tests and then a JSON policy check as a compact smoke check.

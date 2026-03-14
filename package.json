@@ -10,6 +10,7 @@
   "scripts": {
     "infra:report": "node ./scripts/infra-report.mjs",
     "infra:check": "node ./scripts/infra-check.mjs",
+    "infra:doctor": "node ./scripts/infra-doctor.mjs",
     "infra:snapshot": "node ./scripts/infra-snapshot.mjs",
     "infra:diff": "node ./scripts/infra-diff.mjs",
     "test": "node ./test/run-tests.mjs",
