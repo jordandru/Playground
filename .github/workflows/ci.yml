@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  verify:
+    name: Verify on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+        node:
+          - 24
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Run test suite
+        run: npm test
+
+      - name: Check infrastructure policy
+        run: npm run infra:check
+
+      - name: Snapshot infrastructure
+        run: npm run infra:snapshot
+
+      - name: Upload infrastructure artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: infra-${{ matrix.os }}
+          path: reports/infra

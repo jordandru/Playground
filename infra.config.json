@@ -1,0 +1,13 @@
+{
+  "requirements": {
+    "nodeMajorGte": 24,
+    "files": ["README.md", ".gitignore", ".editorconfig", ".gitattributes"],
+    "directories": ["src", "test"],
+    "ciWorkflow": ".github/workflows/ci.yml",
+    "git": {
+      "mustExist": true,
+      "mustHaveCommit": false,
+      "mustHaveRemote": false
+    }
+  }
+}
