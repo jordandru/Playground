@@ -1,5 +1,6 @@
 export const DEFAULT_PACKAGE_SCRIPTS = {
   "infra:init": "node ./scripts/infra-init.mjs",
+  "infra:status": "node ./scripts/infra-status.mjs",
   "infra:report": "node ./scripts/infra-report.mjs",
   "infra:check": "node ./scripts/infra-check.mjs",
   "infra:doctor": "node ./scripts/infra-doctor.mjs",
@@ -17,7 +18,7 @@ export const DEFAULT_INFRA_CONFIG = {
     directories: ["src", "test"],
     ciWorkflow: ".github/workflows/ci.yml",
     packageJson: {
-      requiredScripts: ["infra:check", "infra:doctor", "infra:fix", "infra:init", "infra:snapshot", "test", "check"]
+      requiredScripts: ["infra:check", "infra:doctor", "infra:fix", "infra:init", "infra:status", "infra:snapshot", "test", "check"]
     },
     git: {
       mustExist: true,
@@ -153,5 +154,6 @@ This repository uses the infrastructure-first Node scaffold.
 - \`npm run infra:doctor\`
 - \`npm run infra:fix\`
 - \`npm run infra:init -- <target-directory>\`
+- \`npm run infra:status\`
 `;
 }

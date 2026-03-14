@@ -5,8 +5,9 @@ import { historyTests } from "./history.test.mjs";
 import { initTests } from "./init.test.mjs";
 import { policyTests } from "./policy.test.mjs";
 import { reportTests } from "./report.test.mjs";
+import { statusTests } from "./status.test.mjs";
 
-const tests = [...reportTests, ...policyTests, ...historyTests, ...initTests, ...doctorTests, ...fixTests, ...cliTests];
+const tests = [...reportTests, ...policyTests, ...historyTests, ...initTests, ...doctorTests, ...fixTests, ...statusTests, ...cliTests];
 let passed = 0;
 
 for (const testCase of tests) {

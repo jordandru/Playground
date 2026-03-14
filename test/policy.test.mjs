@@ -144,7 +144,7 @@ export const policyTests = [
     name: "policy fails when required package scripts are missing",
     run() {
       const workspace = createTempWorkspace({
-        missingScripts: ["infra:doctor", "infra:fix", "check"]
+        missingScripts: ["infra:doctor", "infra:fix", "infra:status", "check"]
       });
 
       try {
@@ -159,6 +159,7 @@ export const policyTests = [
         assert.equal(finding?.status, "fail");
         assert.match(finding?.message ?? "", /infra:doctor/);
         assert.match(finding?.message ?? "", /infra:fix/);
+        assert.match(finding?.message ?? "", /infra:status/);
         assert.match(finding?.message ?? "", /check/);
       } finally {
         workspace.cleanup();

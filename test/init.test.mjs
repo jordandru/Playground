@@ -34,10 +34,13 @@ export const initTests = [
         assert.equal(packageJson.name, "my-infra-app");
         assert.match(readme, /^# My Infra App/m);
         assert.equal(typeof packageJson.scripts["infra:fix"], "string");
+        assert.equal(typeof packageJson.scripts["infra:status"], "string");
         assert.equal(existsSync(path.join(targetDir, "scripts", "infra-init.mjs")), true);
         assert.equal(existsSync(path.join(targetDir, "scripts", "infra-fix.mjs")), true);
+        assert.equal(existsSync(path.join(targetDir, "scripts", "infra-status.mjs")), true);
         assert.equal(existsSync(path.join(targetDir, "src", "infra", "init.mjs")), true);
         assert.equal(existsSync(path.join(targetDir, "src", "infra", "fix.mjs")), true);
+        assert.equal(existsSync(path.join(targetDir, "src", "infra", "status.mjs")), true);
         assert.equal(existsSync(path.join(targetDir, "reports", "infra", ".gitkeep")), true);
       });
     }
