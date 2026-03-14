@@ -37,6 +37,16 @@ function parseNodeMajor(version) {
   return match ? Number.parseInt(match[1], 10) : null;
 }
 
+function readPackageJson(cwd) {
+  const packageJsonPath = path.join(cwd, "package.json");
+
+  if (!existsSync(packageJsonPath)) {
+    return null;
+  }
+
+  return readJson(packageJsonPath);
+}
+
 function finding({ id, severity, status, message }) {
   return { id, severity, status, message };
 }
@@ -82,6 +92,65 @@ function evaluatePathRequirement(report, relativePath, type) {
   const absolutePath = path.join(report.workspaceRoot, relativePath);
 
   return pathExistsAs(absolutePath, type);
+}
+
+function expectedNodeEngine(requirements) {
+  return `>=${requirements.nodeMajorGte}`;
+}
+
+function evaluatePackageScripts(packageJson, requiredScripts) {
+  if (!packageJson) {
+    return finding({
+      id: "package-json-scripts",
+      severity: "error",
+      status: "fail",
+      message: "package.json is missing, so required scripts cannot be validated."
+    });
+  }
+
+  const scripts = packageJson.scripts ?? {};
+  const missingScripts = requiredScripts.filter((scriptName) => typeof scripts[scriptName] !== "string");
+
+  if (!missingScripts.length) {
+    return finding({
+      id: "package-json-scripts",
+      severity: "error",
+      status: "pass",
+      message: "package.json contains all required infrastructure scripts."
+    });
+  }
+
+  return finding({
+    id: "package-json-scripts",
+    severity: "error",
+    status: "fail",
+    message: `package.json is missing required scripts: ${missingScripts.map((scriptName) => `\`${scriptName}\``).join(", ")}.`
+  });
+}
+
+function evaluatePackageNodeEngine(packageJson, requirements) {
+  const expected = expectedNodeEngine(requirements);
+
+  if (!packageJson) {
+    return finding({
+      id: "package-json-node-engine",
+      severity: "error",
+      status: "fail",
+      message: "package.json is missing, so the Node engine requirement cannot be validated."
+    });
+  }
+
+  const actual = packageJson.engines?.node ?? null;
+  const pass = actual === expected;
+
+  return finding({
+    id: "package-json-node-engine",
+    severity: "error",
+    status: pass ? "pass" : "fail",
+    message: pass
+      ? `package.json declares the expected Node engine range \`${expected}\`.`
+      : `package.json declares Node engine \`${actual ?? "missing"}\`, but policy expects \`${expected}\`.`
+  });
 }
 
 function evaluateGitPresence(report, required) {
@@ -162,6 +231,7 @@ export function evaluateInfrastructurePolicy(report, config) {
   const nodeMajor = parseNodeMajor(report.tools.node.version);
   const nodeRequirement = requirements.nodeMajorGte;
   const nodePass = nodeMajor !== null && nodeMajor >= nodeRequirement;
+  const packageJson = readPackageJson(report.workspaceRoot);
 
   findings.push(
     finding({
@@ -214,6 +284,13 @@ export function evaluateInfrastructurePolicy(report, config) {
         ? `CI workflow \`${requirements.ciWorkflow}\` exists.`
         : `CI workflow \`${requirements.ciWorkflow}\` is missing.`
     })
+  );
+
+  findings.push(
+    evaluatePackageScripts(packageJson, requirements.packageJson.requiredScripts)
+  );
+  findings.push(
+    evaluatePackageNodeEngine(packageJson, requirements)
   );
 
   findings.push(evaluateGitPresence(report, requirements.git.mustExist));

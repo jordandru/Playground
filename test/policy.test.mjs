@@ -28,7 +28,7 @@ export const policyTests = [
     name: "policy flags missing required files",
     run() {
       const workspace = createTempWorkspace({
-        missingFiles: ["README.md"]
+        missingFiles: ["README.md", "infra.config.json"]
       });
 
       try {
@@ -38,9 +38,11 @@ export const policyTests = [
         });
         const result = evaluateInfrastructurePolicy(report, workspace.config);
         const finding = result.findings.find((entry) => entry.id === "file:README.md");
+        const configFinding = result.findings.find((entry) => entry.id === "file:infra.config.json");
 
         assert.equal(result.summary.pass, false);
         assert.equal(finding?.status, "fail");
+        assert.equal(configFinding?.status, "fail");
       } finally {
         workspace.cleanup();
       }
@@ -133,6 +135,53 @@ export const policyTests = [
         assert.equal(result.summary.pass, true);
         assert.equal(commitFinding?.status, "pass");
         assert.equal(remoteFinding?.status, "pass");
+      } finally {
+        workspace.cleanup();
+      }
+    }
+  },
+  {
+    name: "policy fails when required package scripts are missing",
+    run() {
+      const workspace = createTempWorkspace({
+        missingScripts: ["infra:doctor", "check"]
+      });
+
+      try {
+        const report = collectInfrastructureReport({
+          cwd: workspace.root,
+          config: workspace.config
+        });
+        const result = evaluateInfrastructurePolicy(report, workspace.config);
+        const finding = result.findings.find((entry) => entry.id === "package-json-scripts");
+
+        assert.equal(result.summary.pass, false);
+        assert.equal(finding?.status, "fail");
+        assert.match(finding?.message ?? "", /infra:doctor/);
+        assert.match(finding?.message ?? "", /check/);
+      } finally {
+        workspace.cleanup();
+      }
+    }
+  },
+  {
+    name: "policy fails when package.json engines.node drifts from policy",
+    run() {
+      const workspace = createTempWorkspace({
+        packageNodeEngine: ">=22"
+      });
+
+      try {
+        const report = collectInfrastructureReport({
+          cwd: workspace.root,
+          config: workspace.config
+        });
+        const result = evaluateInfrastructurePolicy(report, workspace.config);
+        const finding = result.findings.find((entry) => entry.id === "package-json-node-engine");
+
+        assert.equal(result.summary.pass, false);
+        assert.equal(finding?.status, "fail");
+        assert.match(finding?.message ?? "", />=24/);
       } finally {
         workspace.cleanup();
       }

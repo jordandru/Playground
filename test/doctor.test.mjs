@@ -40,6 +40,7 @@ export const doctorTests = [
     run() {
       const workspace = createTempWorkspace({
         missingFiles: ["README.md"],
+        missingScripts: ["infra:doctor"],
         withGit: false
       });
 
@@ -60,6 +61,12 @@ export const doctorTests = [
           actions.some(
             (action) =>
               action.findingId === "git-exists" && action.priority === "required"
+          )
+        );
+        assert.ok(
+          actions.some(
+            (action) =>
+              action.findingId === "package-json-scripts" && action.priority === "required"
           )
         );
         assert.equal(

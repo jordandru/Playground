@@ -123,6 +123,7 @@ function collectTopLevelEntries(cwd) {
 
 function collectProjectSignals(cwd) {
   return {
+    infraConfig: existsSync(path.join(cwd, "infra.config.json")),
     packageJson: existsSync(path.join(cwd, "package.json")),
     readme: existsSync(path.join(cwd, "README.md")),
     gitignore: existsSync(path.join(cwd, ".gitignore")),
@@ -269,6 +270,7 @@ export function formatMarkdownReport(report) {
     `- Working tree: ${status}`,
     "",
     "## Project Signals",
+    `- infra.config.json: ${yesNo(report.project.infraConfig)}`,
     `- package.json: ${yesNo(report.project.packageJson)}`,
     `- README.md: ${yesNo(report.project.readme)}`,
     `- .gitignore: ${yesNo(report.project.gitignore)}`,

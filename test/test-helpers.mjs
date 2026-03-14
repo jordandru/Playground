@@ -14,9 +14,12 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."
 export const DEFAULT_INFRA_CONFIG = {
   requirements: {
     nodeMajorGte: 24,
-    files: ["README.md", ".gitignore", ".editorconfig", ".gitattributes"],
+    files: ["README.md", ".gitignore", ".editorconfig", ".gitattributes", "infra.config.json"],
     directories: ["src", "test"],
     ciWorkflow: ".github/workflows/ci.yml",
+    packageJson: {
+      requiredScripts: ["infra:check", "infra:doctor", "infra:snapshot", "test", "check"]
+    },
     git: {
       mustExist: true,
       mustHaveCommit: false,
@@ -35,6 +38,36 @@ function writeWorkspaceFile(root, relativePath, content) {
   writeFileSync(absolutePath, content);
 }
 
+function createPackageJsonContent(config, options) {
+  const missingScripts = new Set(options.missingScripts ?? []);
+  const requiredScripts = config.requirements.packageJson.requiredScripts;
+  const scripts = {};
+
+  for (const scriptName of requiredScripts) {
+    if (!missingScripts.has(scriptName)) {
+      scripts[scriptName] = "node -e \"process.exit(0)\"";
+    }
+  }
+
+  if (options.extraScripts) {
+    Object.assign(scripts, options.extraScripts);
+  }
+
+  return `${JSON.stringify(
+    {
+      name: "temp-workspace",
+      private: true,
+      type: "module",
+      engines: {
+        node: options.packageNodeEngine ?? `>=${config.requirements.nodeMajorGte}`
+      },
+      scripts
+    },
+    null,
+    2
+  )}\n`;
+}
+
 export function createTempWorkspace(options = {}) {
   const root = mkdtempSync(path.join(os.tmpdir(), "playground-infra-"));
   const missingFiles = new Set(options.missingFiles ?? []);
@@ -43,7 +76,7 @@ export function createTempWorkspace(options = {}) {
     ? JSON.parse(JSON.stringify(options.config))
     : JSON.parse(JSON.stringify(DEFAULT_INFRA_CONFIG));
 
-  if (options.writeConfig !== false) {
+  if (options.writeConfig !== false && !missingFiles.has("infra.config.json")) {
     writeWorkspaceFile(root, "infra.config.json", `${JSON.stringify(config, null, 2)}\n`);
   }
 
@@ -51,7 +84,8 @@ export function createTempWorkspace(options = {}) {
     "README.md": "# Temp Workspace\n",
     ".gitignore": "node_modules/\n",
     ".editorconfig": "root = true\n",
-    ".gitattributes": "* text=auto\n"
+    ".gitattributes": "* text=auto\n",
+    "package.json": createPackageJsonContent(config, options)
   };
 
   for (const [relativePath, content] of Object.entries(rootFiles)) {

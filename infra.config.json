@@ -1,9 +1,12 @@
 {
   "requirements": {
     "nodeMajorGte": 24,
-    "files": ["README.md", ".gitignore", ".editorconfig", ".gitattributes"],
+    "files": ["README.md", ".gitignore", ".editorconfig", ".gitattributes", "infra.config.json"],
     "directories": ["src", "test"],
     "ciWorkflow": ".github/workflows/ci.yml",
+    "packageJson": {
+      "requiredScripts": ["infra:check", "infra:doctor", "infra:snapshot", "test", "check"]
+    },
     "git": {
       "mustExist": true,
       "mustHaveCommit": false,

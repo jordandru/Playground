@@ -57,6 +57,34 @@ function buildNodeAction(requiredMajor) {
   };
 }
 
+function buildPackageScriptsAction(requiredScripts) {
+  return {
+    findingId: "package-json-scripts",
+    priority: "required",
+    title: "Add the required package.json scripts",
+    rationale: "The current policy expects the infrastructure CLI scripts to be declared in package.json.",
+    steps: [
+      `Add these scripts under \`package.json > scripts\`: ${requiredScripts.map((scriptName) => `\`${scriptName}\``).join(", ")}.`,
+      "Keep the script commands aligned with the files in the scripts/ directory.",
+      "Re-run `npm run infra:check` to confirm the policy now passes."
+    ]
+  };
+}
+
+function buildPackageNodeEngineAction(requiredMajor) {
+  return {
+    findingId: "package-json-node-engine",
+    priority: "required",
+    title: "Align package.json engines.node with policy",
+    rationale: "The package metadata should advertise the same minimum Node version that policy enforces.",
+    steps: [
+      `Set \`package.json > engines.node\` to \`>=${requiredMajor}\`.`,
+      "Save package.json and reopen the shell if you are also changing your local Node version.",
+      "Re-run `npm run infra:check` to confirm the policy now passes."
+    ]
+  };
+}
+
 function buildGitInitAction() {
   return {
     findingId: "git-exists",
@@ -127,6 +155,14 @@ export function buildDoctorActions(report, config) {
 
   if (findingsById.get("ci-workflow")?.status === "fail") {
     actions.push(buildCiAction(requirements.ciWorkflow));
+  }
+
+  if (findingsById.get("package-json-scripts")?.status === "fail") {
+    actions.push(buildPackageScriptsAction(requirements.packageJson.requiredScripts));
+  }
+
+  if (findingsById.get("package-json-node-engine")?.status === "fail") {
+    actions.push(buildPackageNodeEngineAction(requirements.nodeMajorGte));
   }
 
   if (findingsById.get("git-exists")?.status === "fail") {

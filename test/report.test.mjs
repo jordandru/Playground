@@ -78,6 +78,7 @@ export const reportTests = [
           statusLines: ["?? package.json"]
         },
         project: {
+          infraConfig: true,
           packageJson: true,
           readme: true,
           gitignore: true,
@@ -103,6 +104,12 @@ export const reportTests = [
             severity: "error",
             status: "pass",
             message: "Node major version 24 satisfies the minimum requirement of 24."
+          },
+          {
+            id: "package-json-scripts",
+            severity: "error",
+            status: "pass",
+            message: "package.json contains all required infrastructure scripts."
           }
         ],
         observations: ["Observation one"],

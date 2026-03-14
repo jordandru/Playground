@@ -29,6 +29,12 @@ This repository started as an empty Git workspace, so the first layer here is in
 - `npm run infra:diff` compares the current workspace to the latest saved snapshot without writing new files.
 - `npm run check` runs the tests and then a JSON policy check as a compact smoke check.
 
+## Current policy
+
+- Required baseline files include `infra.config.json` alongside the repository hygiene files.
+- `package.json` must expose the core infrastructure scripts used by this repo.
+- `package.json > engines.node` must stay aligned with the policy minimum Node version.
+
 ## Next directions
 
 - Add more domain-specific checks as the project grows.
