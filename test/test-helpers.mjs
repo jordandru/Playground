@@ -18,7 +18,7 @@ export const DEFAULT_INFRA_CONFIG = {
     directories: ["src", "test"],
     ciWorkflow: ".github/workflows/ci.yml",
     packageJson: {
-      requiredScripts: ["infra:check", "infra:doctor", "infra:snapshot", "test", "check"]
+      requiredScripts: ["infra:check", "infra:doctor", "infra:init", "infra:snapshot", "test", "check"]
     },
     git: {
       mustExist: true,
@@ -36,6 +36,34 @@ function writeWorkspaceFile(root, relativePath, content) {
   const absolutePath = path.join(root, relativePath);
   ensureDirectory(path.dirname(absolutePath));
   writeFileSync(absolutePath, content);
+}
+
+export function writeGitMetadata(root, options = {}) {
+  const withRemote = options.withRemote ?? false;
+  const withCommit = options.withCommit ?? true;
+
+  writeWorkspaceFile(root, ".git/HEAD", "ref: refs/heads/master\n");
+
+  const configLines = [
+    "[core]",
+    "\trepositoryformatversion = 0",
+    "\tfilemode = false",
+    "\tbare = false"
+  ];
+
+  if (withRemote) {
+    configLines.push("", "[remote \"origin\"]", "\turl = https://example.com/repo.git");
+  }
+
+  writeWorkspaceFile(root, ".git/config", `${configLines.join("\n")}\n`);
+
+  if (withCommit) {
+    writeWorkspaceFile(
+      root,
+      ".git/refs/heads/master",
+      "1111111111111111111111111111111111111111\n"
+    );
+  }
 }
 
 function createPackageJsonContent(config, options) {
@@ -105,28 +133,10 @@ export function createTempWorkspace(options = {}) {
   }
 
   if (options.withGit !== false) {
-    writeWorkspaceFile(root, ".git/HEAD", "ref: refs/heads/master\n");
-
-    const configLines = [
-      "[core]",
-      "\trepositoryformatversion = 0",
-      "\tfilemode = false",
-      "\tbare = false"
-    ];
-
-    if (options.withRemote) {
-      configLines.push("", "[remote \"origin\"]", "\turl = https://example.com/repo.git");
-    }
-
-    writeWorkspaceFile(root, ".git/config", `${configLines.join("\n")}\n`);
-
-    if (options.withCommit) {
-      writeWorkspaceFile(
-        root,
-        ".git/refs/heads/master",
-        "1111111111111111111111111111111111111111\n"
-      );
-    }
+    writeGitMetadata(root, {
+      withRemote: options.withRemote,
+      withCommit: options.withCommit
+    });
   }
 
   return {
